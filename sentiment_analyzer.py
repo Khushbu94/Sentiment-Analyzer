@@ -2,8 +2,13 @@ from nltk.classify import NaiveBayesClassifier
 from nltk.corpus import subjectivity
 from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.util import *
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk import tokenize
 import json
 
+
+file = open('yelp_academic_dataset_review.json', 'r')
+sid = SentimentIntensityAnalyzer()
 
 def trainClassifier():
     n_instances = 100
@@ -44,16 +49,19 @@ def trainClassifier():
 
     print(sentim_analyzer.classify(getNextReview()))
 
-
-
-    file = open('yelp_academic_dataset_review.json', 'r')
-
-
 def getNextReview():
     line = file.readline()
     review = json.loads(line)['text']
     return review
 
+def getSentiment(text):
+    print(text)
+    ss = sid.polarity_scores(text)
+    for k in sorted(ss):
+        print('{0}: {1}, '.format(k, ss[k]), end='')
+        print()
 
 
-trainClassifier()
+#trainClassifier()
+
+getSentiment(getNextReview())
