@@ -5,6 +5,7 @@ from nltk.sentiment.util import *
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk import tokenize
 import json
+import math
 
 
 file = open('yelp_academic_dataset_review.json', 'r')
@@ -47,21 +48,42 @@ def trainClassifier():
     for key, value in sorted(sentim_analyzer.evaluate(test_set).items()):
         print('{0}: {1}'.format(key, value))
 
-    print(sentim_analyzer.classify(getNextReview()))
-
 def getNextReview():
     line = file.readline()
     review = json.loads(line)['text']
-    return review
+    stars = json.loads(line)['stars']
+    return (review, stars)
+
+
+def stars(num):
+    if num > -5 and num <= -3:
+        return 1
+    elif num > -3 and num <= -1:
+        return 2
+    elif num > -1 and num <= 1:
+        return 3
+    elif num > 1 and num <= 3:
+        return 4
+    elif num > 3 and num <= 5:
+        return 5
 
 def getSentiment(text):
-    print(text)
+    #print(text)
     ss = sid.polarity_scores(text)
-    for k in sorted(ss):
+    compound = 0
+    for k in ss: 
+        if (k == 'compound'):
+            compound = ss[k]
         print('{0}: {1}, '.format(k, ss[k]), end='')
-        print()
 
+    print(stars(math.ceil(compound * 5)))
+    return stars(math.ceil(compound * 5))
 
 #trainClassifier()
 
-getSentiment(getNextReview())
+for i in range(10):
+    review = getNextReview()
+    print(review[0], review[1])
+    predictedStars = getSentiment(review[0])
+    print()
+
